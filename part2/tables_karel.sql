@@ -87,9 +87,9 @@ CREATE TABLE Titul (
     id_titulu INTEGER NOT NULL, -- PRIMARY KEY
     nazev VARCHAR(50) NOT NULL,
     podnazev VARCHAR(50),
-    vydavatel VARCHAR(50) NOT NULL, -- CHECK
+    vydavatel VARCHAR(50), -- CHECK
 
-    CONSTRAINT CHK_Titul_typ CHECK ((vydavatel<>NULL AND id_autora=NULL AND id_zanru=NULL) OR (id_autora<>NULL AND vydavatel=NULL AND id_tema=NULL)),
+    --CONSTRAINT CHK_Titul_typ CHECK ((vydavatel<>NULL AND id_autora=NULL AND id_zanru=NULL) OR (id_autora<>NULL AND vydavatel=NULL AND id_tema=NULL)),
     CONSTRAINT PK_Titul PRIMARY KEY (id_titulu)
 );
 
@@ -120,7 +120,7 @@ CREATE TABLE Titul_autor (
     id_titulu INTEGER NOT NULL, 
     id_autora INTEGER NOT NULL,
     
-    CONSTRAINT FK_Titul_autor_id_titulu FOREIGN KEY (id_titulu) REFERENCES Zanr(id_titulu),
+    CONSTRAINT FK_Titul_autor_id_titulu FOREIGN KEY (id_titulu) REFERENCES Titul(id_titulu),
     CONSTRAINT FK_Titul_autor_id_autora FOREIGN KEY (id_autora) REFERENCES Autor(id_autora),
     
     CONSTRAINT PK_Titul_autor PRIMARY KEY (id_titulu, id_autora)
@@ -130,8 +130,8 @@ CREATE TABLE Titul_tema (
     id_titulu INTEGER NOT NULL, 
     id_tema INTEGER NOT NULL,
     
-    CONSTRAINT FK_Titul_tema_id_titulu FOREIGN KEY (id_titulu) REFERENCES Zanr(id_titulu),
-    CONSTRAINT FK_Titul_tema_id_autora FOREIGN KEY (id_tema) REFERENCES Autor(id_tema),
+    CONSTRAINT FK_Titul_tema_id_titulu FOREIGN KEY (id_titulu) REFERENCES Titul(id_titulu),
+    CONSTRAINT FK_Titul_tema_id_autora FOREIGN KEY (id_tema) REFERENCES Tema(id_tema),
     
     CONSTRAINT PK_Titul_tema PRIMARY KEY (id_titulu, id_tema)
 );
@@ -190,10 +190,10 @@ CREATE TABLE Rezervace (
 
     casopis_ISSN INTEGER, -- FOREIGN KEY, CHECK
     kniha_ISBN INTEGER, -- FOREIGN KEY, CHECK
+    id_vypujcky INTEGER, -- FOREIGN KEY
 
     id_ctenare INTEGER NOT NULL, -- FOREIGN KEY
     id_pracovnika_zrusil INTEGER, -- FOREIGN KEY
-    id_pracovnika_vytvoril INTEGER, -- FOREIGN KEY
 
     CONSTRAINT CHK_Rezervace_typ CHECK ((casopis_ISSN<>NULL AND kniha_ISBN=NULL) OR (kniha_ISBN<>NULL AND casopis_ISSN=NULL)),
     CONSTRAINT CHK_Rezervace_stav CHECK (stav IN ('platná', 'ukončena')),
@@ -202,8 +202,7 @@ CREATE TABLE Rezervace (
     CONSTRAINT FK_Rezervace_kniha_ISBN FOREIGN KEY (kniha_ISBN) REFERENCES Vydani_knihy(ISBN),
     CONSTRAINT FK_Rezervace_casopis_ISSN FOREIGN KEY (casopis_ISSN) REFERENCES Cislo_casopisu(ISSN),
     CONSTRAINT FK_Rezervace_id_ctenare FOREIGN KEY (id_ctenare) REFERENCES Ctenar(cislo_prukazu),
-    CONSTRAINT FK_Rezervace_id_pracovnika_zrusil FOREIGN KEY (id_pracovnika_zrusil) REFERENCES Pracovnik(id_pracovnika),
-    CONSTRAINT FK_Rezervace_id_pracovnika_vytvoril FOREIGN KEY (id_pracovnika_vytvoril) REFERENCES Pracovnik(id_pracovnika)
+    CONSTRAINT FK_Rezervace_id_pracovnika_zrusil FOREIGN KEY (id_pracovnika_zrusil) REFERENCES Pracovnik(id_pracovnika)
 );
 
 
@@ -228,8 +227,10 @@ CREATE TABLE Vypujcka (
     CONSTRAINT CHK_Vypujcka_datum CHECK (vypujceno_od<vypujceno_do),
     CONSTRAINT PK_Vypujcka PRIMARY KEY (id_vypujcky),
     CONSTRAINT FK_Vypujcka_id_vytisku FOREIGN KEY (id_vytisku) REFERENCES Vytisk(id_vytisku),
-    CONSTRAINT FK_Vypujcka_id_rezervace FOREIGN KEY (id_rezervace) REFERENCES Rezervace(id_rezervace),
     CONSTRAINT FK_Vypujcka_id_ctenare FOREIGN KEY (id_ctenare) REFERENCES Ctenar(cislo_prukazu),
     CONSTRAINT FK_Vypujcka_id_pracovnika_vydal FOREIGN KEY (id_pracovnika_vydal) REFERENCES Pracovnik(id_pracovnika),
     CONSTRAINT FK_Vypujcka_id_pracovnika_prijal FOREIGN KEY (id_pracovnika_prijal) REFERENCES Pracovnik(id_pracovnika)
 );
+
+ALTER TABLE Rezervace ADD CONSTRAINT FK_Rezervace_id_vypujcky FOREIGN KEY (id_vypujcky) REFERENCES Vypujcka(id_vypujcky);
+ALTER TABLE Vypujcka ADD CONSTRAINT FK_Vypujcka_id_rezervace FOREIGN KEY (id_rezervace) REFERENCES Rezervace(id_rezervace);
