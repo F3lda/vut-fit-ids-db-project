@@ -30,7 +30,7 @@ DROP TABLE Vypujcka CASCADE CONSTRAINTS;
 --vytvareni tabulek--
 /* Osoby */
 CREATE TABLE Pracovnik (
-    id_pracovnika INTEGER NOT NULL, -- PRIMARY KEY
+    id_pracovnika INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     jmeno VARCHAR(20) NOT NULL,
     prijmeni VARCHAR(20) NOT NULL,
     email VARCHAR(50),
@@ -39,7 +39,7 @@ CREATE TABLE Pracovnik (
 );
 
 CREATE TABLE Ctenar (
-    cislo_prukazu INTEGER NOT NULL, -- PRIMARY KEY
+    cislo_prukazu INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     platnost_prukazu DATE NOT NULL,
     jmeno VARCHAR(20) NOT NULL,
     prijmeni VARCHAR(20) NOT NULL,
@@ -58,21 +58,21 @@ CREATE TABLE Ctenar (
 
 /* Titul */
 CREATE TABLE Tema (
-    id_tema INTEGER NOT NULL, -- PRIMARY KEY
+    id_tema INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     nazev VARCHAR(20) NOT NULL,
 
     CONSTRAINT PK_Tema PRIMARY KEY (id_tema)
 );
 
 CREATE TABLE Zanr (
-    id_zanru INTEGER NOT NULL, -- PRIMARY KEY
+    id_zanru INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     nazev VARCHAR(20) NOT NULL, 
 
     CONSTRAINT PK_Zanr PRIMARY KEY (id_zanru)
 );
 
 CREATE TABLE Autor (
-    id_autora INTEGER NOT NULL, -- PRIMARY KEY
+    id_autora INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     jmeno VARCHAR(20) NOT NULL,
     prijmeni VARCHAR(20) NOT NULL,
     rok_narozeni INTEGER, -- CHECK
@@ -84,7 +84,7 @@ CREATE TABLE Autor (
 );
 
 CREATE TABLE Titul (
-    id_titulu INTEGER NOT NULL, -- PRIMARY KEY
+    id_titulu INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     nazev VARCHAR(50) NOT NULL,
     podnazev VARCHAR(50),
     vydavatel VARCHAR(50), -- CHECK
@@ -166,7 +166,7 @@ CREATE TABLE Cislo_casopisu (
 
 /* Výtisk/Rezervace vydání */
 CREATE TABLE Vytisk (
-    id_vytisku INTEGER NOT NULL, -- PRIMARY KEY
+    id_vytisku INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     stav VARCHAR(10) NOT NULL, -- CHECK
     datum_pridani DATE, -- CHECK
     datum_vyrazeni DATE, -- CHECK
@@ -183,7 +183,7 @@ CREATE TABLE Vytisk (
 );
 /* Rezervace vydání */
 CREATE TABLE Rezervace (
-    id_rezervace INTEGER NOT NULL, -- PRIMARY KEY
+    id_rezervace INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     stav VARCHAR(20) NOT NULL, -- CHECK
     rezervovano_od DATE NOT NULL, -- CHECK
     rezervovano_do DATE NOT NULL, -- CHECK
@@ -209,7 +209,7 @@ CREATE TABLE Rezervace (
 
 /* Výpůjčka Výtisku/Rezervace */
 CREATE TABLE Vypujcka (
-    id_vypujcky INTEGER NOT NULL, -- PRIMARY KEY
+    id_vypujcky INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
     stav VARCHAR(20) NOT NULL, -- CHECK
     vypujceno_od DATE NOT NULL, -- CHECK
     vypujceno_do DATE NOT NULL, -- CHECK
