@@ -60,3 +60,4 @@ SELECT * FROM Zanr;
 SELECT * FROM Autor;
 SELECT * FROM Titul;
 SELECT * Vydani_knihy;
+SELECT * Cislo_casopisu;
