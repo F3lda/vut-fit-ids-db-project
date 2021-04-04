@@ -39,6 +39,7 @@ INSERT INTO Titul VALUES(DEFAULT,'Audience',NULL,NULL); -- Drama,Havel
 INSERT INTO Titul VALUES(DEFAULT,'Babička','Obrazy venkovského života',NULL); -- Novela,Němcová
 INSERT INTO Titul VALUES(DEFAULT,'R.U.R.',NULL,NULL); -- Science fiction,Čapek
 INSERT INTO Titul VALUES(DEFAULT,'Válka s Mloky',NULL,NULL); -- Science fiction,Čapek
+INSERT INTO Titul VALUES(DEFAULT,'Můj bylinkový diář',NULL,'Poznání'); -- Můj bylinkový diář
 
 INSERT INTO Vydani_knihy VALUES('456-25-951-7853-6',1967,1,'Československý spisovatel'); -- Spalovac mrtvol
 INSERT INTO Vydani_knihy VALUES('448-55-456-2589-3',2003,3,'Odeon'); -- Spalovac mrtvol
@@ -48,6 +49,8 @@ INSERT INTO Vydani_knihy VALUES('9598-56-657-0154-2',1940,2,'František Strnad')
 INSERT INTO Vydani_knihy VALUES('369-66-823-1456-4',2010,6,'Argo'); --RUR
 INSERT INTO Vydani_knihy VALUES('978-80-7033-157-6',1900,3,'Odeon'); --RUR
 INSERT INTO Vydani_knihy VALUES('7886-364-53-366',1958,10,'Československý spisovatel'); --Válka s mloky
+
+INSERT INTO Cislo_casopisu VALUES('2307-7301',2018,5) --Můj bylinkový diář
 
 --zobrazeni tabulek--
 SELECT * FROM Pracovnik;
