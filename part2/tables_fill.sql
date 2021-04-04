@@ -50,8 +50,25 @@ INSERT INTO Vydani_knihy VALUES('369-66-823-1456-4',2010,6,'Argo'); --RUR
 INSERT INTO Vydani_knihy VALUES('978-80-7033-157-6',1900,3,'Odeon'); --RUR
 INSERT INTO Vydani_knihy VALUES('7886-364-53-366',1958,10,'Československý spisovatel'); --Válka s mloky
 
-INSERT INTO Cislo_casopisu VALUES('2307-7301',2018,5) --Můj bylinkový diář
+INSERT INTO Cislo_casopisu VALUES('2307-7301',2018,5); --Můj bylinkový diář
 
+INSERT INTO Vytisk VALUES(DEFAULT,'vypůjčen',TO_DATE('2010-06-07', 'YYYY-MM-DD'),NULL); -- Spalovac mrtvol, vydani 1
+INSERT INTO Vytisk VALUES(DEFAULT,'skladem',TO_DATE('2011-03-02', 'YYYY-MM-DD'),NULL); -- Spalovac mrtvol, vydani 3
+INSERT INTO Vytisk VALUES(DEFAULT,'skladem',TO_DATE('2009-05-04', 'YYYY-MM-DD'),NULL); -- Spalovac mrtvol, vydani 3
+INSERT INTO Vytisk VALUES(DEFAULT,'skladem',NULL,NULL); -- Audience
+INSERT INTO Vytisk VALUES(DEFAULT,'vyřazen',NULL,NULL); -- Babička, vydani 1
+INSERT INTO Vytisk VALUES(DEFAULT,'skladem',NULL,NULL); -- Babička, vydani 2
+INSERT INTO Vytisk VALUES(DEFAULT,'skladem',TO_DATE('2009-05-04', 'YYYY-MM-DD'),NULL); ---RUR, vydani 6
+INSERT INTO Vytisk VALUES(DEFAULT,'vypůjčen',NULL,NULL); -- Babička, vydani 2
+INSERT INTO Vytisk VALUES(DEFAULT,'vypůjčen',NULL,NULL); --Válka s mloky
+
+INSERT INTO Rezervace VALUES(DEFAULT,'ukončena',TO_DATE('2021-05-03', 'YYYY-MM-DD'),TO_DATE('2021-05-04', 'YYYY-MM-DD')); -- RUR, vydani 6
+
+INSERT INTO Vypujcka VALUES(DEFAULT,'vypůjčeno',TO_DATE('2021-20-03', 'YYYY-MM-DD'),TO_DATE('2021-7-04', 'YYYY-MM-DD')); --Válka s mloky
+INSERT INTO Vypujcka VALUES(DEFAULT,'vypůjčeno',TO_DATE('2021-20-03', 'YYYY-MM-DD'),TO_DATE('2021-8-04', 'YYYY-MM-DD')); -- Babička, vydani 2
+INSERT INTO Vypujcka VALUES(DEFAULT,'vypůjčeno',TO_DATE('2021-26-03', 'YYYY-MM-DD'),TO_DATE('2021-10-04', 'YYYY-MM-DD')); -- Spalovac mrtvol, vydani 1
+INSERT INTO Vypujcka VALUES(DEFAULT,'vráceno',TO_DATE('2021-10-03', 'YYYY-MM-DD'),TO_DATE('2021-28-03', 'YYYY-MM-DD')); -- Spalovac mrtvol, vydani 3
+                                                                                            
 --zobrazeni tabulek--
 SELECT * FROM Pracovnik;
 SELECT * FROM Ctenar;
@@ -61,3 +78,6 @@ SELECT * FROM Autor;
 SELECT * FROM Titul;
 SELECT * Vydani_knihy;
 SELECT * Cislo_casopisu;
+SELECT * Vytisk;
+SELECT * Rezervace;
+SELECT * Vypujcka;
