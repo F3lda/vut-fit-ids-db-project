@@ -97,8 +97,8 @@ CREATE TABLE Titul (
 
 /* Vazební tabulky */
 CREATE TABLE Titul_zanr (
-    id_zanru INTEGER NOT NULL, 
     id_titulu INTEGER NOT NULL,
+    id_zanru INTEGER NOT NULL,
     
     CONSTRAINT FK_Titul_zanr_id_zanru FOREIGN KEY (id_zanru) REFERENCES Zanr(id_zanru),
     CONSTRAINT FK_Titul_zanr_id_titulu FOREIGN KEY (id_titulu) REFERENCES Titul(id_titulu),
@@ -167,7 +167,7 @@ CREATE TABLE Cislo_casopisu (
 /* Výtisk/Rezervace vydání */
 CREATE TABLE Vytisk (
     id_vytisku INTEGER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL, -- PRIMARY KEY
-    stav VARCHAR(10) NOT NULL, -- CHECK
+    stav VARCHAR(15) NOT NULL, -- CHECK
     datum_pridani DATE, -- CHECK
     datum_vyrazeni DATE, -- CHECK
 
@@ -175,7 +175,7 @@ CREATE TABLE Vytisk (
     kniha_ISBN VARCHAR(20), -- FOREIGN KEY, CHECK
 
     CONSTRAINT CHK_Vytisk_typ CHECK ((casopis_ISSN<>NULL AND kniha_ISBN=NULL) OR (kniha_ISBN<>NULL AND casopis_ISSN=NULL)),
-    CONSTRAINT CHK_Vytisk_stav CHECK (stav IN ('skladem', 'vypůjčen', 'vyřazen')),
+    CONSTRAINT CHK_Vytisk_stav CHECK (stav IN ('skladem', 'rezervován', 'vypůjčen', 'vyřazen')),
     CONSTRAINT CHK_Vytisk_datum CHECK (datum_pridani IS NULL OR datum_vyrazeni IS NULL OR datum_pridani<datum_vyrazeni),
     CONSTRAINT PK_Vytisk PRIMARY KEY (id_vytisku),
     CONSTRAINT FK_Vytisk_kniha_ISBN FOREIGN KEY (kniha_ISBN) REFERENCES Vydani_knihy(ISBN),
