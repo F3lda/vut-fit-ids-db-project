@@ -46,7 +46,7 @@ INSERT INTO Vydani_knihy VALUES('978-80-7483-080-8',1975,1,'Šafrán'); -- Audie
 INSERT INTO Vydani_knihy VALUES('698-96-637-2469-4',1940,1,'L. Mazáč'); -- Babička
 INSERT INTO Vydani_knihy VALUES('9598-56-657-0154-2',1940,2,'František Strnad'); -- Babička
 INSERT INTO Vydani_knihy VALUES('369-66-823-1456-4',2010,3,'Argo'); --RUR
-INSERT INTO Vydani_knihy VALUES('7886-364-53-366',1958,10,Československý spisovatel'); --Válka s mloky
+INSERT INTO Vydani_knihy VALUES('7886-364-53-366',1958,10,'Československý spisovatel'); --Válka s mloky
 
 --zobrazeni tabulek--
 SELECT * FROM Pracovnik;
