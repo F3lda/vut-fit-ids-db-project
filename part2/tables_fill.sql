@@ -40,6 +40,13 @@ INSERT INTO Titul VALUES(DEFAULT,'Babička','Obrazy venkovského života',NULL);
 INSERT INTO Titul VALUES(DEFAULT,'R.U.R.',NULL,NULL); -- Science fiction,Čapek
 INSERT INTO Titul VALUES(DEFAULT,'Válka s Mloky',NULL,NULL); -- Science fiction,Čapek
 
+INSERT INTO Vydani_knihy VALUES('456-25-951-7853-6',1967,1,'Československý spisovatel'); -- Spalovac mrtvol
+INSERT INTO Vydani_knihy VALUES('448-55-456-2589-3',2003,3,'Odeon'); -- Spalovac mrtvol
+INSERT INTO Vydani_knihy VALUES('978-80-7483-080-8',1975,1,'Šafrán'); -- Audience
+INSERT INTO Vydani_knihy VALUES('698-96-637-2469-4',1940,1,'L. Mazáč'); -- Babička
+INSERT INTO Vydani_knihy VALUES('9598-56-657-0154-2',1940,2,'František Strnad'); -- Babička
+INSERT INTO Vydani_knihy VALUES('369-66-823-1456-4',2010,3,'Argo'); --RUR
+INSERT INTO Vydani_knihy VALUES('7886-364-53-366',1958,10,Československý spisovatel'); --Válka s mloky
 
 --zobrazeni tabulek--
 SELECT * FROM Pracovnik;
@@ -48,3 +55,4 @@ SELECT * FROM Tema;
 SELECT * FROM Zanr;
 SELECT * FROM Autor;
 SELECT * FROM Titul;
+SELECT * Vydani_knihy;
