@@ -140,7 +140,7 @@ CREATE TABLE Titul_tema (
 
 /* Vydání titulu */
 CREATE TABLE Vydani_knihy (
-    ISBN INTEGER NOT NULL, -- PRIMARY KEY
+    ISBN VARCHAR(20) NOT NULL, -- PRIMARY KEY
     rok_vydani INTEGER NOT NULL,
     cislo_vydani INTEGER NOT NULL,
     nakladatelstvi VARCHAR(50) NOT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE Vydani_knihy (
 );
 
 CREATE TABLE Cislo_casopisu (
-    ISSN INTEGER NOT NULL, -- PRIMARY KEY
+    ISSN VARCHAR(20) NOT NULL, -- PRIMARY KEY
     rok_vydani INTEGER NOT NULL,
     cislo_vydani INTEGER NOT NULL,
 
@@ -171,8 +171,8 @@ CREATE TABLE Vytisk (
     datum_pridani DATE, -- CHECK
     datum_vyrazeni DATE, -- CHECK
 
-    casopis_ISSN INTEGER, -- FOREIGN KEY, CHECK
-    kniha_ISBN INTEGER, -- FOREIGN KEY, CHECK
+    casopis_ISSN VARCHAR(20), -- FOREIGN KEY, CHECK
+    kniha_ISBN VARCHAR(20), -- FOREIGN KEY, CHECK
 
     CONSTRAINT CHK_Vytisk_typ CHECK ((casopis_ISSN<>NULL AND kniha_ISBN=NULL) OR (kniha_ISBN<>NULL AND casopis_ISSN=NULL)),
     CONSTRAINT CHK_Vytisk_stav CHECK (stav IN ('skladem', 'vypůjčen', 'vyřazen')),
@@ -188,8 +188,8 @@ CREATE TABLE Rezervace (
     rezervovano_od DATE NOT NULL, -- CHECK
     rezervovano_do DATE NOT NULL, -- CHECK
 
-    casopis_ISSN INTEGER, -- FOREIGN KEY, CHECK
-    kniha_ISBN INTEGER, -- FOREIGN KEY, CHECK
+    casopis_ISSN VARCHAR(20), -- FOREIGN KEY, CHECK
+    kniha_ISBN VARCHAR(20), -- FOREIGN KEY, CHECK
     id_vypujcky INTEGER, -- FOREIGN KEY
 
     id_ctenare INTEGER NOT NULL, -- FOREIGN KEY
