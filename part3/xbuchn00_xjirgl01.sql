@@ -399,7 +399,7 @@ FROM Titul WHERE ISBN='448-55-456-2589-3';
 
 /* Přidání Výpůjček */
 INSERT INTO Vypujcka VALUES(DEFAULT, 'vypůjčeno', TO_DATE('2021-03-20', 'YYYY-MM-DD'), TO_DATE('2021-7-04', 'YYYY-MM-DD'),  9, 3, 2, 2, NULL); --Válka s mloky
-INSERT INTO Vypujcka VALUES(DEFAULT, 'vypůjčeno', TO_DATE('2021-03-20', 'YYYY-MM-DD'), TO_DATE('2021-8-04', 'YYYY-MM-DD'),  6, 4, 4, 3, NULL); -- Babička, vydani 2
+INSERT INTO Vypujcka VALUES(DEFAULT, 'vypůjčeno', TO_DATE('2021-03-20', 'YYYY-MM-DD'), TO_DATE('2021-8-04', 'YYYY-MM-DD'),  7, 4, 4, 3, NULL); -- Babička, vydani 2
 INSERT INTO Vypujcka VALUES(DEFAULT, 'vypůjčeno', TO_DATE('2021-03-26', 'YYYY-MM-DD'), TO_DATE('2021-10-04', 'YYYY-MM-DD'), 1, 5, 5, 4, NULL); -- Spalovac mrtvol, vydani 1
 INSERT INTO Vypujcka VALUES(DEFAULT, 'vráceno', TO_DATE('2021-03-10', 'YYYY-MM-DD'), TO_DATE('2021-03-28', 'YYYY-MM-DD'),   2, 6, 3, 5, 3); -- Spalovac mrtvol, vydani 3
 
@@ -444,7 +444,7 @@ SELECT * FROM Pracovnik
 JOIN Vypujcka
 ON Vypujcka.id_pracovnika_vydal = Pracovnik.id_pracovnika;
 
--- Zobrazení národností autorů s počtem autorů dané národnosti
+-- Zobrazení národnosti autorů s počtem autorů patřících k dané národnosti
 SELECT narodnost, COUNT(*) as pocet FROM Autor GROUP BY narodnost;
 
 -- Zobrazí počty titulů vydaných po roce 1989 podle typu
@@ -453,5 +453,5 @@ SELECT typ, COUNT(*) as pocet FROM Titul WHERE rok_vydani >= 1989 GROUP BY typ;
 -- Zobrazí všechny čtenáře, kteří mají něco vypůjčeno
 SELECT * FROM Ctenar WHERE EXISTS (SELECT * FROM Vypujcka WHERE Vypujcka.id_ctenare = Ctenar.cislo_prukazu AND Vypujcka.stav = 'vypůjčeno');
 
--- zobrazení aktuálně vypůjčených výtisků
+-- Zobrazení aktuálně vypůjčených výtisků
 SELECT * FROM Vytisk WHERE id_vytisku IN (SELECT id_vytisku FROM Vypujcka) AND stav = 'vypůjčen';
