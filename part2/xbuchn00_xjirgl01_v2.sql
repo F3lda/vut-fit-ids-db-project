@@ -233,9 +233,6 @@ ALTER TABLE Vypujcka ADD CONSTRAINT FK_Vypujcka_id_rezervace FOREIGN KEY (id_rez
 
 
 
---vlozeni udaju do tabulek--
---zobrazeni data a casu--
-ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
 
 
 
@@ -326,10 +323,13 @@ INSERT INTO Titul_zanr (id_titulu, id_zanru) SELECT (SELECT id_titulu FROM Titul
 
 /* Doplnění vazební tabulky mezi Žánrem a Autorem */
 INSERT INTO Zanr_autor
-    SELECT DISTINCT Titul_zanr.id_zanru, Titul_autor.id_autora
-    FROM Titul_autor
-    LEFT JOIN Titul_zanr
-    ON Titul_autor.id_titulu = Titul_zanr.id_titulu;
+    SELECT * FROM
+        (SELECT DISTINCT Titul_zanr.id_zanru, Titul_autor.id_autora
+        FROM Titul_autor
+        LEFT JOIN Titul_zanr
+        ON Titul_autor.id_titulu = Titul_zanr.id_titulu) table1
+    WHERE NOT EXISTS
+        (SELECT * FROM Zanr_autor table2 WHERE table2.id_zanru = table1.id_zanru AND table2.id_autora = table1.id_autora);
 
 
 
