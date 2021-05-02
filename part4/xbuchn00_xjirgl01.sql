@@ -756,3 +756,45 @@ GRANT ALL ON Rezervace TO &grantPermissionsToUsername;
 GRANT ALL ON Vypujcka TO &grantPermissionsToUsername;
 
 GRANT ALL ON SEQ_ID_PRACOVNIKA TO &grantPermissionsToUsername;
+
+
+
+
+
+
+
+					
+-------------------------------------------------- INDEXY --------------------------------------------------					
+CREATE INDEX jmeno_titulu
+ON titul (nazev);
+
+CREATE INDEX i_autor
+ON autor (prijmeni, jmeno);
+
+/* dotaz, na který budou mít indexy vliv */
+SELECT
+  Titul.NAZEV, COUNT(*) as pocet
+  FROM Titul_autor
+  JOIN Titul
+  ON Titul.id_titulu = Titul_autor.id_titulu
+  JOIN Autor
+  ON Autor.id_autora = Titul_autor.id_autora
+WHERE jmeno='Karel' AND prijmeni='Čapek'
+GROUP BY Titul.NAZEV;
+
+CREATE INDEX jmeno_titulu
+ON titul (nazev);									
+-------------------------------------------------- EXPLAIN PLAN --------------------------------------------------
+EXPLAIN PLAN SET STATEMENT_ID = 'plan' FOR
+SELECT
+  Titul.NAZEV, COUNT(*) as pocet
+  FROM Titul_autor
+  JOIN Titul
+  ON Titul.id_titulu = Titul_autor.id_titulu
+  JOIN Autor
+  ON Autor.id_autora = Titul_autor.id_autora
+WHERE jmeno='Karel' AND prijmeni='Čapek'
+GROUP BY Titul.NAZEV;
+
+SELECT plan_table_output
+FROM table(dbms_xplan.display('plan_table','plan','typical'));
