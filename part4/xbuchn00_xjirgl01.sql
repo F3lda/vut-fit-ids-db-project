@@ -532,6 +532,14 @@ INSERT INTO Titul VALUES(DEFAULT, 'kniha', 'Válka s Mloky', '', 1958, 10, 'Čes
 INSERT INTO Titul_autor (id_titulu, id_autora) SELECT (SELECT id_titulu FROM Titul WHERE ISBN='7886-364-53-366') as id_titulu, id_autora FROM Autor WHERE jmeno='Karel' AND prijmeni='Čapek' FETCH FIRST 1 ROWS ONLY;
 INSERT INTO Titul_zanr (id_titulu, id_zanru) SELECT (SELECT id_titulu FROM Titul WHERE ISBN='7886-364-53-366') as id_titulu, id_zanru FROM Zanr WHERE nazev='Science fiction' FETCH FIRST 1 ROWS ONLY;
 
+INSERT INTO Titul VALUES(DEFAULT, 'kniha', 'R.U.R.', '', 2011, 3, 'Argo', '126-86-823-1456-4', NULL);
+INSERT INTO Titul_autor (id_titulu, id_autora) SELECT (SELECT id_titulu FROM Titul WHERE ISBN='126-86-823-1456-4') as id_titulu, id_autora FROM Autor WHERE jmeno='Karel' AND prijmeni='Čapek' FETCH FIRST 1 ROWS ONLY;
+INSERT INTO Titul_zanr (id_titulu, id_zanru) SELECT (SELECT id_titulu FROM Titul WHERE ISBN='126-86-823-1456-4') as id_titulu, id_zanru FROM Zanr WHERE nazev='Science fiction' FETCH FIRST 1 ROWS ONLY;
+
+INSERT INTO Titul VALUES(DEFAULT, 'kniha', 'Válka s Mloky', '', 2000, 10, 'Československý spisovatel', '654-364-53-366', NULL);
+INSERT INTO Titul_autor (id_titulu, id_autora) SELECT (SELECT id_titulu FROM Titul WHERE ISBN='654-364-53-366') as id_titulu, id_autora FROM Autor WHERE jmeno='Karel' AND prijmeni='Čapek' FETCH FIRST 1 ROWS ONLY;
+INSERT INTO Titul_zanr (id_titulu, id_zanru) SELECT (SELECT id_titulu FROM Titul WHERE ISBN='654-364-53-366') as id_titulu, id_zanru FROM Zanr WHERE nazev='Science fiction' FETCH FIRST 1 ROWS ONLY;
+
 
 
 /* Doplnění vazební tabulky mezi Žánrem a Autorem */
