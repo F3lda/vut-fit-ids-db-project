@@ -357,7 +357,7 @@ BEGIN
         END;
 
         BEGIN
-            SELECT Vypujcka.id_vypujcky INTO res2 FROM Vypujcka WHERE Vypujcka.stav='vypůjčeno' AND Vypujcka.id_rezervace=:NEW.id_rezervace FETCH FIRST 1 ROWS ONLY;
+            SELECT Vypujcka.id_vypujcky INTO res2 FROM Vypujcka WHERE Vypujcka.stav='vypůjčeno' AND Vypujcka.id_rezervace=:NEW.id_rezervace AND Vypujcka.id_ctenare=:NEW.id_ctenare FETCH FIRST 1 ROWS ONLY;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 res2 := NULL;
@@ -389,7 +389,7 @@ BEGIN
     IF (:NEW.stav='vypůjčeno') THEN
         -- Pokud dochází k vypůjčení Výtisku, musí k němu existovat 'platná' Rezervace příslušného Titulu a 'rezervován' Výtisk příslušného Titulu
         BEGIN
-            SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='platná' AND Rezervace.id_rezervace=:NEW.id_rezervace FETCH FIRST 1 ROWS ONLY;
+            SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='platná' AND Rezervace.id_rezervace=:NEW.id_rezervace AND Rezervace.id_ctenare=:NEW.id_ctenare FETCH FIRST 1 ROWS ONLY;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 res1 := NULL;
@@ -411,7 +411,7 @@ BEGIN
     ELSIF (:NEW.stav='vráceno') THEN
         -- Pokud dochází k vrácení Výtisku, musí k němu existovat 'ukončena' Rezervace příslušného Titulu a 'vypůjčen' Výtisk příslušného Titulu
         BEGIN
-            SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='ukončena' AND Rezervace.id_rezervace=:NEW.id_rezervace FETCH FIRST 1 ROWS ONLY;
+            SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='ukončena' AND Rezervace.id_rezervace=:NEW.id_rezervace AND Rezervace.id_ctenare=:NEW.id_ctenare FETCH FIRST 1 ROWS ONLY;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 res1 := NULL;
