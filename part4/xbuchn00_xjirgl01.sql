@@ -893,9 +893,9 @@ GROUP BY Titul.NAZEV;
 
 SELECT plan_table_output
 FROM table(dbms_xplan.display('plan_table','plan','typical'));
-                              
-                              
-                              
+
+
+
 -------------------------------------------------- MATERIALIZOVANÝ POHLED --------------------------------------------------
 create materialized view log on Rezervace with rowid;
 create materialized view log on Ctenar with rowid;
@@ -912,11 +912,11 @@ as
   FROM Ctenar
   JOIN Rezervace
   ON Ctenar.cislo_prukazu = Rezervace.id_ctenare;
-  
-grant all on rezervace_ctenar to xjirgl01; 
- 
- 
- 
+
+grant all on rezervace_ctenar to xjirgl01;
+
+
+
 -------------------------------------------------- UKÁZKA POUŽITÍ POHLEDU --------------------------------------------------
 explain plan for SELECT jmeno, prijmeni, id_rezervace, stav, rezervace.rowid as rezervace_rowid, ctenar.rowid as ctenar_rowid
 FROM Ctenar
