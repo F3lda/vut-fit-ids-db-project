@@ -1,3 +1,12 @@
+/**
+ * @file xbuchn00_xjirgl01.sql  (VUT FIT - IDS projekt)
+ * 
+ * @brief projekt do předmětu IDS na VUT FIT - poslední (4.) fáze odevzdání
+ * @date 2021-04-04
+ * @author Tereza Buchníčková, Karel Jirgl
+ * @update 2021-05-03
+ */
+
 --zobrazeni data a casu--
 ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
 --zobrazeni vypisu--
@@ -7,11 +16,7 @@ DEFINE grantPermissionsToUsername = 'xjirgl01';
 
 
 
-
-
-
-
--------------------------------------------------- smazani tabulek --------------------------------------------------
+-------------------------------------------------- SMAZÁNÍ OBJEKTŮ --------------------------------------------------
 DROP TABLE Pracovnik CASCADE CONSTRAINTS;
 DROP TABLE Ctenar CASCADE CONSTRAINTS;
 
@@ -34,12 +39,7 @@ DROP SEQUENCE SEQ_ID_PRACOVNIKA;
 
 
 
-
-
-
-
-
--------------------------------------------------- vytvareni tabulek --------------------------------------------------
+-------------------------------------------------- VYTVOŘENÍ TABULEK --------------------------------------------------
 /* Osoby */
 CREATE TABLE Pracovnik (
     id_pracovnika INTEGER NOT NULL, -- PRIMARY KEY -- GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1)
@@ -246,12 +246,7 @@ ALTER TABLE Vypujcka ADD CONSTRAINT FK_Vypujcka_id_rezervace FOREIGN KEY (id_rez
 
 
 
-
-
-
-
-
--------------------------------------------------- TRIGGERY --------------------------------------------------
+-------------------------------------------------- VYTVOŘENÍ TRIGGERŮ --------------------------------------------------
 CREATE SEQUENCE SEQ_ID_PRACOVNIKA START with 1 INCREMENT by 1;
 CREATE OR REPLACE TRIGGER Trigger_id_pracovnika
     BEFORE INSERT ON Pracovnik
@@ -377,7 +372,7 @@ BEGIN
     END IF;/*
 EXCEPTION
     WHEN others THEN
-        dbms_output.put_line('Trigger Vytisk error!');*/
+        dbms_output.put_line('Trigger Rezervace error!');*/
 END;
 /
 
@@ -438,18 +433,128 @@ BEGIN
     END IF;/*
 EXCEPTION
     WHEN others THEN
-        dbms_output.put_line('Trigger Vytisk error!');*/
+        dbms_output.put_line('Trigger Vypujcka error!');*/
 END;
 /
 
 
 
+-------------------------------------------------- VYTVOŘENÍ FUNKCÍ A PROCEDUR --------------------------------------------------
+CREATE OR REPLACE TYPE result_table_row FORCE AS OBJECT (
+	CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI	INTEGER NULL,
+	CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	INTEGER NULL,
+	PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	DOUBLE PRECISION NULL,
+	NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM	INTEGER NULL
+);
+/
+CREATE OR REPLACE TYPE result_table IS TABLE OF result_table_row;
+/
+
+/* funkce zobraz_statistiky_nevracenych_vytisku() může být nahrazena těmito SELECT dotazy:
+SELECT id_ctenare, COUNT(id_ctenare) AS NEVRACENYCH_VYTISKU_PO_SPLATNOSTI FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do GROUP BY id_ctenare;
+SELECT COUNT(*) AS CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do;
+SELECT COUNT(id_ctenare) AS CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do;
+SELECT COUNT(id_ctenare) AS NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do GROUP BY id_ctenare ORDER BY CTENAR_S_NEJVICE_NEVRACENYMI_VYTISKY_PO_SPLATNOSTI DESC FETCH FIRST 1 ROWS ONLY;
+*/
+CREATE OR REPLACE FUNCTION zobraz_statistiky_nevracenych_vytisku
+	RETURN result_table
+AS
+	CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI	INTEGER := 0;
+	CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	INTEGER := 0;
+	PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	DOUBLE PRECISION := 0;
+	NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM	INTEGER := 0;
+
+	POCET_CTENARU INTEGER;
+
+	DLUZICI_CTENAR	Vypujcka.id_ctenare%TYPE;
+	POCET_NEVRACENYCH_VYTISKU_CTENAREM	INTEGER;
+	CURSOR CURSOR_DLUZICI_CTENARI IS SELECT id_ctenare, COUNT(id_ctenare) AS NEVRACENYCH_VYTISKU_PO_SPLATNOSTI FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do GROUP BY id_ctenare;
+
+	RET_TABLE	result_table;
+BEGIN
+	OPEN CURSOR_DLUZICI_CTENARI;
+	LOOP
+		FETCH CURSOR_DLUZICI_CTENARI INTO DLUZICI_CTENAR, POCET_NEVRACENYCH_VYTISKU_CTENAREM;
+
+		EXIT WHEN CURSOR_DLUZICI_CTENARI%NOTFOUND;
+
+
+		CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI := CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI + POCET_NEVRACENYCH_VYTISKU_CTENAREM;
+		CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI := CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI + 1;
+		
+		IF NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM < POCET_NEVRACENYCH_VYTISKU_CTENAREM THEN
+			NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM := POCET_NEVRACENYCH_VYTISKU_CTENAREM;
+		END IF;
+	END LOOP;
+	CLOSE CURSOR_DLUZICI_CTENARI;
+
+	SELECT COUNT(*) INTO POCET_CTENARU FROM Ctenar;
+	PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI := CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI/POCET_CTENARU;
+
+	SELECT result_table_row(CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI, CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI, PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI, NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM) BULK COLLECT INTO RET_TABLE FROM dual;
+
+	RETURN RET_TABLE;
+EXCEPTION WHEN ZERO_DIVIDE THEN
+	BEGIN
+		SELECT result_table_row(0, 0, -1, 0) BULK COLLECT INTO RET_TABLE FROM dual;
+		RETURN RET_TABLE;
+	END;
+END;
+/
 
 
 
+/* OPERACE V KNIHOVNĚ
+---------------------
+
+Přidání Výtisku do knihovny
+- INSERT Vytisk - skladem;
+
+Vytvoření Rezervace
+- INSERT Rezervace - platná;
+- UPDATE Vytisk - rezervován;
+
+Vypůjčení Rezervace
+- INSERT Vypujcka - vypůjčeno;
+- UPDATE Rezervace - ukončena;
+- UPDATE Vytisk - vypůjčen;
+
+Vrácení Výpůjčky
+- UPDATE Vypujcka - vráceno;
+- UPDATE Vytisk - skladem;
+
+Zrušení Rezervace
+- UPDATE Rezervace - zrušena;
+- UPDATE Vytisk - skladem;
+
+Vyřazení Výtisku
+- UPDATE Vytisk - vyřazen;
+*/
+CREATE OR REPLACE PROCEDURE vytvoreni_rezervace_knihy (arg_ISBN Titul.ISBN%TYPE, arg_id_ctenare Ctenar.cislo_prukazu%TYPE)
+AS
+	var_id_titulu	Titul.id_titulu%TYPE;
+BEGIN
+	SAVEPOINT SAVEPOINT_pred_rezervaci;
+
+	INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
+	SELECT 'platná', SYSDATE, SYSDATE + 30, id_titulu, NULL, arg_id_ctenare, NULL 
+	FROM Titul WHERE ISBN=arg_ISBN;
+
+	SELECT id_titulu INTO var_id_titulu FROM Titul WHERE ISBN=arg_ISBN;
+
+	UPDATE Vytisk SET stav='rezervován' WHERE Vytisk.stav='skladem' AND Vytisk.id_titulu=var_id_titulu AND ROWNUM=1;
+EXCEPTION 
+	WHEN others THEN
+	BEGIN
+		ROLLBACK TO SAVEPOINT_pred_rezervaci;
+		RAISE;
+	END;
+END;
+/
 
 
--------------------------------------------------- vlozeni udaju do tabulek --------------------------------------------------
+
+-------------------------------------------------- VLOŽENÍ ÚDAJŮ DO TABULEK --------------------------------------------------
 INSERT INTO Pracovnik VALUES(DEFAULT,'Jan','Novák','xnovak01@knihovna.cz');
 INSERT INTO Pracovnik VALUES(DEFAULT,'Andrej','Bureš','xbures00@knihovna.cz');
 INSERT INTO Pracovnik VALUES(DEFAULT,'Gregor','Johann Mendel','xmendel03@knihovna.cz');
@@ -652,28 +757,18 @@ UPDATE Vypujcka SET stav='vráceno' WHERE id_vypujcky=4;
 UPDATE Vytisk SET stav='skladem' WHERE id_vytisku=2;
 
 
-
-
-
-
-
 /*
--------------------------------------------------- zobrazeni tabulek --------------------------------------------------
+-------------------------------------------------- ZOBRAZENÍ TABULEK --------------------------------------------------
 SELECT * FROM Pracovnik;
 SELECT * FROM Ctenar;
 SELECT * FROM Tema;
 SELECT * FROM Zanr;
 SELECT * FROM Autor;
-SELECT * FROM Titul;*/
+SELECT * FROM Titul;
 SELECT * FROM Vytisk;
 SELECT * FROM Rezervace;
 SELECT * FROM Vypujcka;
-
-
-
-
-
-
+*/
 
 /*
 -------------------------------------------------- SELECT DOTAZY --------------------------------------------------
@@ -712,27 +807,32 @@ SELECT * FROM Vytisk WHERE id_vytisku IN (SELECT id_vytisku FROM Vypujcka) AND s
 */
 
 
-
-
-
-
-
--------------------------------------------------- ukázka TRIGGERů --------------------------------------------------
+-------------------------------------------------- UKÁZKA TRIGGERŮ --------------------------------------------------
 -- Trigger_id_pracovnika
 INSERT INTO Pracovnik VALUES(DEFAULT,'Franta','Pepa Jednička','xpepa01@knihovna.cz');
--- Pracovník Franta Pepa Jednička jakožto 6. vložený bude mít ID 6
+-- pracovník Franta Pepa Jednička jakožto 6. vložený bude mít ID 6
 SELECT * FROM Pracovnik;
 
 -- Trigger_Rezervace
--- Snaha o vytvoření Rezervace pro Titul, který nemá žádný Výtisk skladem, končí chybou.
+-- snaha o vytvoření Rezervace pro Titul, který nemá žádný Výtisk skladem, skončí chybou
 INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
 SELECT 'platná', TO_DATE('2021-03-03', 'YYYY-MM-DD'), TO_DATE('2023-05-04', 'YYYY-MM-DD'), id_titulu, NULL, 4, NULL 
 FROM Titul WHERE ISBN='369-66-823-1456-4';
 
 
 
+-------------------------------------------------- UKÁZKA FUNKCÍ A PROCEDUR --------------------------------------------------
+-- příklad spuštění funkce zobraz_statistiky_nevracenych_vytisku()
+SELECT * FROM zobraz_statistiky_nevracenych_vytisku();
 
-
+-- příklad použití procedury na vytvoření nové rezervace knihy čtenářem
+BEGIN vytvoreni_rezervace_knihy('448-55-456-2589-3', 2); END;
+/
+BEGIN vytvoreni_rezervace_knihy('448-55-456-2589-3', 2); END;
+/
+-- -- jelikož jsou skladem jen 2 výtisky daného titulu, tak 3. rezervace skončí chybou
+BEGIN vytvoreni_rezervace_knihy('448-55-456-2589-3', 2); END;
+/
 
 
 
@@ -759,11 +859,6 @@ GRANT ALL ON SEQ_ID_PRACOVNIKA TO &grantPermissionsToUsername;
 
 
 
-
-
-
-
-					
 -------------------------------------------------- INDEXY --------------------------------------------------					
 CREATE INDEX jmeno_titulu
 ON titul (nazev);
@@ -782,8 +877,8 @@ SELECT
 WHERE jmeno='Karel' AND prijmeni='Čapek'
 GROUP BY Titul.NAZEV;
 
-CREATE INDEX jmeno_titulu
-ON titul (nazev);									
+
+
 -------------------------------------------------- EXPLAIN PLAN --------------------------------------------------
 EXPLAIN PLAN SET STATEMENT_ID = 'plan' FOR
 SELECT
