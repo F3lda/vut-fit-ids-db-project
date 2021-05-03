@@ -37,6 +37,7 @@ DROP TABLE Vypujcka CASCADE CONSTRAINTS;
 
 DROP SEQUENCE SEQ_ID_PRACOVNIKA;
 
+DROP MATERIALIZED VIEW rezervace_ctenar;
 
 
 -------------------------------------------------- VYTVOŘENÍ TABULEK --------------------------------------------------
@@ -255,6 +256,11 @@ CREATE OR REPLACE TRIGGER Trigger_id_pracovnika
 BEGIN
     IF :NEW.id_pracovnika IS NULL THEN
         :NEW.id_pracovnika := SEQ_ID_PRACOVNIKA.NEXTVAL;
+    ELSE
+        WHILE :NEW.id_pracovnika > SEQ_ID_PRACOVNIKA.NEXTVAL
+        LOOP
+            null;
+        END LOOP;
     END IF;
 END;
 /
@@ -809,8 +815,10 @@ SELECT * FROM Vytisk WHERE id_vytisku IN (SELECT id_vytisku FROM Vypujcka) AND s
 
 -------------------------------------------------- UKÁZKA TRIGGERŮ --------------------------------------------------
 -- Trigger_id_pracovnika
-INSERT INTO Pracovnik VALUES(DEFAULT,'Franta','Pepa Jednička','xpepa01@knihovna.cz');
--- pracovník Franta Pepa Jednička jakožto 6. vložený bude mít ID 6
+INSERT INTO Pracovnik VALUES(8,'Franta','Pepa Jednička','xpepa01@knihovna.cz');
+-- pracovník Franta Pepa Jednička jako 6. vložený bude mít ID 8, protože je explicitně zadáno
+INSERT INTO Pracovnik VALUES(DEFAULT,'Karel','Havlíček Borovský','xhavel00@knihovna.cz');
+-- vkladání dalšího Pracovníka pokračuje v posloupnosti od posledního vloženého ID
 SELECT * FROM Pracovnik;
 
 -- Trigger_Rezervace
@@ -913,7 +921,7 @@ as
   JOIN Rezervace
   ON Ctenar.cislo_prukazu = Rezervace.id_ctenare;
 
-grant all on rezervace_ctenar to xjirgl01;
+grant all on rezervace_ctenar to &grantPermissionsToUsername;
 
 
 
