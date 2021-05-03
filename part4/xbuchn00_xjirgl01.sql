@@ -1,6 +1,6 @@
 /**
  * @file xbuchn00_xjirgl01.sql  (VUT FIT - IDS projekt)
- * 
+ *
  * @brief projekt do předmětu IDS na VUT FIT - poslední (4.) fáze odevzdání
  * @date 2021-04-04
  * @author Tereza Buchníčková, Karel Jirgl
@@ -95,7 +95,7 @@ CREATE TABLE Autor (
 
 
     CONSTRAINT CHK_Autor_rok CHECK (rok_umrti=NULL OR rok_narozeni<rok_umrti),
-    
+
     CONSTRAINT PK_Autor PRIMARY KEY (id_autora)
 );
 
@@ -156,7 +156,7 @@ CREATE TABLE Titul_autor (
 
 CREATE TABLE Titul_tema (
     id_titulu INTEGER NOT NULL, -- FOREIGN KEY - Titul
-    id_tema INTEGER NOT NULL, -- FOREIGN KEY - Tema 
+    id_tema INTEGER NOT NULL, -- FOREIGN KEY - Tema
 
 
     CONSTRAINT PK_Titul_tema PRIMARY KEY (id_titulu, id_tema),
@@ -180,9 +180,9 @@ CREATE TABLE Vytisk (
     -- KONTROLA V APLIKACI NEBO PŘES FUNKCI/TRIGGER -> při změně stavu zkontrolovat, že nový stav odpovídá (existuje rezervace/výpůjčka)
     CONSTRAINT CHK_Vytisk_stav CHECK (stav IN ('skladem', 'rezervován', 'vypůjčen', 'vyřazen')),
     CONSTRAINT CHK_Vytisk_datum CHECK (datum_pridani IS NULL OR datum_vyrazeni IS NULL OR datum_pridani<datum_vyrazeni),
-    
+
     CONSTRAINT PK_Vytisk PRIMARY KEY (id_vytisku),
-    
+
     CONSTRAINT FK_Cislo_casopisu_id_titulu FOREIGN KEY (id_titulu) REFERENCES Titul(id_titulu)
 );
 
@@ -231,9 +231,9 @@ CREATE TABLE Vypujcka (
     -- KONTROLA V APLIKACI NEBO PŘES FUNKCI/TRIGGER -> id_vytisku.stav='rezervován' a id_rezervace.stav='platná' (+ změna id_vytisku.stav='vypůjčen' a id_rezervace.stav='ukončena')
     CONSTRAINT CHK_Vypujcka_stav CHECK (stav IN ('vypůjčeno', 'vráceno')),
     CONSTRAINT CHK_Vypujcka_datum CHECK (vypujceno_od<vypujceno_do),
-    
+
     CONSTRAINT PK_Vypujcka PRIMARY KEY (id_vypujcky),
-    
+
     CONSTRAINT FK_Vypujcka_id_vytisku FOREIGN KEY (id_vytisku) REFERENCES Vytisk(id_vytisku),
     CONSTRAINT FK_Vypujcka_id_ctenare FOREIGN KEY (id_ctenare) REFERENCES Ctenar(cislo_prukazu),
     CONSTRAINT FK_Vypujcka_id_pracovnika_vydal FOREIGN KEY (id_pracovnika_vydal) REFERENCES Pracovnik(id_pracovnika),
@@ -269,7 +269,7 @@ DECLARE
     res1 INTEGER;
     res2 INTEGER;
 BEGIN
-	IF (:NEW.stav='rezervován') THEN
+    IF (:NEW.stav='rezervován') THEN
         -- Pokud dochází k rezervaci Výtisku, musí k němu existovat 'platná' Rezervace příslušného Titulu
         BEGIN
             SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='platná' AND Rezervace.id_titulu=:NEW.id_titulu FETCH FIRST 1 ROWS ONLY;
@@ -282,7 +282,7 @@ BEGIN
             RAISE_APPLICATION_ERROR(-20001, 'Výtisk nelze rezervovat: Rezervace příslušného Titulu neexistuje!');
         END IF;
 
-	ELSIF (:NEW.stav='vypůjčen') THEN
+    ELSIF (:NEW.stav='vypůjčen') THEN
         -- Pokud dochází k vypůjčení Výtisku, musí k němu existovat 'vypůjčeno' Výpůjčka i 'ukončena' Rezervace příslušného Titulu
         BEGIN
             SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='ukončena' AND Rezervace.id_titulu=:NEW.id_titulu FETCH FIRST 1 ROWS ONLY;
@@ -303,7 +303,7 @@ BEGIN
         ELSIF (res2 IS NULL) THEN
             RAISE_APPLICATION_ERROR(-20001, 'Výtisk nelze vypůjčit: Výpůjčka příslušného Výtisku neexistuje!');
         END IF;
-        
+
     END IF;/*
 EXCEPTION
     WHEN others THEN
@@ -314,14 +314,14 @@ END;
 
 
 CREATE OR REPLACE TRIGGER Trigger_Rezervace
-	BEFORE INSERT OR UPDATE OF stav ON Rezervace
+    BEFORE INSERT OR UPDATE OF stav ON Rezervace
     REFERENCING NEW AS NEW OLD AS OLD
-	FOR EACH ROW
+    FOR EACH ROW
 DECLARE
     res1 INTEGER;
     res2 INTEGER;
 BEGIN
-	IF (:NEW.stav='platná') THEN
+    IF (:NEW.stav='platná') THEN
         -- Pokud dochází k rezervaci Titulu, musí k němu existovat 'skladem' Výtisk příslušného Titulu
         BEGIN
             SELECT Vytisk.id_vytisku INTO res1 FROM Vytisk WHERE Vytisk.stav='skladem' AND Vytisk.id_titulu=:NEW.id_titulu FETCH FIRST 1 ROWS ONLY;
@@ -334,7 +334,7 @@ BEGIN
             RAISE_APPLICATION_ERROR(-20001, 'Rezervaci nelze vytvořit: žádný Výtisk příslušného Titulu není skladem!');
         END IF;
 
-	ELSIF (:NEW.stav='zrušena') THEN
+    ELSIF (:NEW.stav='zrušena') THEN
         -- Pokud dochází ke zrušení Rezervace Titulu, musí k ní existovat 'rezervován' Výtisk příslušného Titulu
         BEGIN
             SELECT Vytisk.id_vytisku INTO res1 FROM Vytisk WHERE Vytisk.stav='rezervován' AND Vytisk.id_titulu=:NEW.id_titulu FETCH FIRST 1 ROWS ONLY;
@@ -346,7 +346,7 @@ BEGIN
         IF (res1 IS NULL) THEN
             RAISE_APPLICATION_ERROR(-20001, 'Rezervaci nelze zrušit: žádný Výtisk příslušného Titulu nebyl rezervován!');
         END IF;
-        
+
     ELSIF (:NEW.stav='ukončena') THEN
         -- Pokud dochází k vypůjčení Rezervace, musí k ní existovat 'rezervován' Výtisk příslušného Titulu a musí existovat 'vypůjčeno' Výpůjčka s číslem této rezervace
         BEGIN
@@ -368,7 +368,7 @@ BEGIN
         ELSIF (res2 IS NULL) THEN
             RAISE_APPLICATION_ERROR(-20001, 'Rezervaci nelze ukončit: Výpůjčka příslušné Rezervace neexistuje!');
         END IF;
-        
+
     END IF;/*
 EXCEPTION
     WHEN others THEN
@@ -379,14 +379,14 @@ END;
 
 
 CREATE OR REPLACE TRIGGER Trigger_Vypujcka
-	BEFORE INSERT OR UPDATE OF stav ON Vypujcka
+    BEFORE INSERT OR UPDATE OF stav ON Vypujcka
     REFERENCING NEW AS NEW OLD AS OLD
-	FOR EACH ROW
+    FOR EACH ROW
 DECLARE
     res1 INTEGER;
     res2 INTEGER;
 BEGIN
-	IF (:NEW.stav='vypůjčeno') THEN
+    IF (:NEW.stav='vypůjčeno') THEN
         -- Pokud dochází k vypůjčení Výtisku, musí k němu existovat 'platná' Rezervace příslušného Titulu a 'rezervován' Výtisk příslušného Titulu
         BEGIN
             SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='platná' AND Rezervace.id_rezervace=:NEW.id_rezervace FETCH FIRST 1 ROWS ONLY;
@@ -408,7 +408,7 @@ BEGIN
             RAISE_APPLICATION_ERROR(-20001, 'Výpůjčku nelze vytvořit: příslušný rezervovaný Výtisk neexistuje!');
         END IF;
 
-	ELSIF (:NEW.stav='vráceno') THEN
+    ELSIF (:NEW.stav='vráceno') THEN
         -- Pokud dochází k vrácení Výtisku, musí k němu existovat 'ukončena' Rezervace příslušného Titulu a 'vypůjčen' Výtisk příslušného Titulu
         BEGIN
             SELECT Rezervace.id_rezervace INTO res1 FROM Rezervace WHERE Rezervace.stav='ukončena' AND Rezervace.id_rezervace=:NEW.id_rezervace FETCH FIRST 1 ROWS ONLY;
@@ -429,7 +429,7 @@ BEGIN
         ELSIF (res2 IS NULL) THEN
             RAISE_APPLICATION_ERROR(-20001, 'Výpůjčku nelze ukončit: příslušný vypůjčený Výtisk neexistuje!');
         END IF;
-        
+
     END IF;/*
 EXCEPTION
     WHEN others THEN
@@ -441,10 +441,10 @@ END;
 
 -------------------------------------------------- VYTVOŘENÍ FUNKCÍ A PROCEDUR --------------------------------------------------
 CREATE OR REPLACE TYPE result_table_row FORCE AS OBJECT (
-	CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI	INTEGER NULL,
-	CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	INTEGER NULL,
-	PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	DOUBLE PRECISION NULL,
-	NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM	INTEGER NULL
+    CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI    INTEGER NULL,
+    CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI  INTEGER NULL,
+    PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI  DOUBLE PRECISION NULL,
+    NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM   INTEGER NULL
 );
 /
 CREATE OR REPLACE TYPE result_table IS TABLE OF result_table_row;
@@ -457,48 +457,48 @@ SELECT COUNT(id_ctenare) AS CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI FROM 
 SELECT COUNT(id_ctenare) AS NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do GROUP BY id_ctenare ORDER BY CTENAR_S_NEJVICE_NEVRACENYMI_VYTISKY_PO_SPLATNOSTI DESC FETCH FIRST 1 ROWS ONLY;
 */
 CREATE OR REPLACE FUNCTION zobraz_statistiky_nevracenych_vytisku
-	RETURN result_table
+    RETURN result_table
 AS
-	CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI	INTEGER := 0;
-	CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	INTEGER := 0;
-	PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI	DOUBLE PRECISION := 0;
-	NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM	INTEGER := 0;
+    CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI    INTEGER := 0;
+    CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI  INTEGER := 0;
+    PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI  DOUBLE PRECISION := 0;
+    NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM   INTEGER := 0;
 
-	POCET_CTENARU INTEGER;
+    POCET_CTENARU INTEGER;
 
-	DLUZICI_CTENAR	Vypujcka.id_ctenare%TYPE;
-	POCET_NEVRACENYCH_VYTISKU_CTENAREM	INTEGER;
-	CURSOR CURSOR_DLUZICI_CTENARI IS SELECT id_ctenare, COUNT(id_ctenare) AS NEVRACENYCH_VYTISKU_PO_SPLATNOSTI FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do GROUP BY id_ctenare;
+    DLUZICI_CTENAR  Vypujcka.id_ctenare%TYPE;
+    POCET_NEVRACENYCH_VYTISKU_CTENAREM  INTEGER;
+    CURSOR CURSOR_DLUZICI_CTENARI IS SELECT id_ctenare, COUNT(id_ctenare) AS NEVRACENYCH_VYTISKU_PO_SPLATNOSTI FROM Vypujcka WHERE stav='vypůjčeno' AND SYSDATE > vypujceno_do GROUP BY id_ctenare;
 
-	RET_TABLE	result_table;
+    RET_TABLE   result_table;
 BEGIN
-	OPEN CURSOR_DLUZICI_CTENARI;
-	LOOP
-		FETCH CURSOR_DLUZICI_CTENARI INTO DLUZICI_CTENAR, POCET_NEVRACENYCH_VYTISKU_CTENAREM;
+    OPEN CURSOR_DLUZICI_CTENARI;
+    LOOP
+        FETCH CURSOR_DLUZICI_CTENARI INTO DLUZICI_CTENAR, POCET_NEVRACENYCH_VYTISKU_CTENAREM;
 
-		EXIT WHEN CURSOR_DLUZICI_CTENARI%NOTFOUND;
+        EXIT WHEN CURSOR_DLUZICI_CTENARI%NOTFOUND;
 
 
-		CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI := CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI + POCET_NEVRACENYCH_VYTISKU_CTENAREM;
-		CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI := CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI + 1;
-		
-		IF NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM < POCET_NEVRACENYCH_VYTISKU_CTENAREM THEN
-			NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM := POCET_NEVRACENYCH_VYTISKU_CTENAREM;
-		END IF;
-	END LOOP;
-	CLOSE CURSOR_DLUZICI_CTENARI;
+        CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI := CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI + POCET_NEVRACENYCH_VYTISKU_CTENAREM;
+        CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI := CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI + 1;
 
-	SELECT COUNT(*) INTO POCET_CTENARU FROM Ctenar;
-	PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI := CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI/POCET_CTENARU;
+        IF NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM < POCET_NEVRACENYCH_VYTISKU_CTENAREM THEN
+            NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM := POCET_NEVRACENYCH_VYTISKU_CTENAREM;
+        END IF;
+    END LOOP;
+    CLOSE CURSOR_DLUZICI_CTENARI;
 
-	SELECT result_table_row(CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI, CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI, PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI, NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM) BULK COLLECT INTO RET_TABLE FROM dual;
+    SELECT COUNT(*) INTO POCET_CTENARU FROM Ctenar;
+    PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI := CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI/POCET_CTENARU;
 
-	RETURN RET_TABLE;
+    SELECT result_table_row(CELKEM_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI, CELKEM_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI, PRUMERNY_POCET_CTENARU_DLUZICICH_VYTISKY_PO_SPLATNOSTI, NEJVETSI_POCET_NEVRACENYCH_VYTISKU_PO_SPLATNOSTI_CTENAREM) BULK COLLECT INTO RET_TABLE FROM dual;
+
+    RETURN RET_TABLE;
 EXCEPTION WHEN ZERO_DIVIDE THEN
-	BEGIN
-		SELECT result_table_row(0, 0, -1, 0) BULK COLLECT INTO RET_TABLE FROM dual;
-		RETURN RET_TABLE;
-	END;
+    BEGIN
+        SELECT result_table_row(0, 0, -1, 0) BULK COLLECT INTO RET_TABLE FROM dual;
+        RETURN RET_TABLE;
+    END;
 END;
 /
 
@@ -532,23 +532,23 @@ Vyřazení Výtisku
 */
 CREATE OR REPLACE PROCEDURE vytvoreni_rezervace_knihy (arg_ISBN Titul.ISBN%TYPE, arg_id_ctenare Ctenar.cislo_prukazu%TYPE)
 AS
-	var_id_titulu	Titul.id_titulu%TYPE;
+    var_id_titulu   Titul.id_titulu%TYPE;
 BEGIN
-	SAVEPOINT SAVEPOINT_pred_rezervaci;
+    SAVEPOINT SAVEPOINT_pred_rezervaci;
 
-	INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
-	SELECT 'platná', SYSDATE, SYSDATE + 30, id_titulu, NULL, arg_id_ctenare, NULL 
-	FROM Titul WHERE ISBN=arg_ISBN;
+    INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
+    SELECT 'platná', SYSDATE, SYSDATE + 30, id_titulu, NULL, arg_id_ctenare, NULL
+    FROM Titul WHERE ISBN=arg_ISBN;
 
-	SELECT id_titulu INTO var_id_titulu FROM Titul WHERE ISBN=arg_ISBN;
+    SELECT id_titulu INTO var_id_titulu FROM Titul WHERE ISBN=arg_ISBN;
 
-	UPDATE Vytisk SET stav='rezervován' WHERE Vytisk.stav='skladem' AND Vytisk.id_titulu=var_id_titulu AND ROWNUM=1;
-EXCEPTION 
-	WHEN others THEN
-	BEGIN
-		ROLLBACK TO SAVEPOINT_pred_rezervaci;
-		RAISE;
-	END;
+    UPDATE Vytisk SET stav='rezervován' WHERE Vytisk.stav='skladem' AND Vytisk.id_titulu=var_id_titulu AND ROWNUM=1;
+EXCEPTION
+    WHEN others THEN
+    BEGIN
+        ROLLBACK TO SAVEPOINT_pred_rezervaci;
+        RAISE;
+    END;
 END;
 /
 
@@ -698,27 +698,27 @@ INSERT INTO Vytisk (stav, datum_pridani, datum_vyrazeni, id_titulu) SELECT 'skla
 
 /* Přidání Rezervací */
 -- Audience
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
-SELECT 'platná', TO_DATE('2021-03-03', 'YYYY-MM-DD'), TO_DATE('2023-05-04', 'YYYY-MM-DD'), id_titulu, NULL, 1, NULL 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
+SELECT 'platná', TO_DATE('2021-03-03', 'YYYY-MM-DD'), TO_DATE('2023-05-04', 'YYYY-MM-DD'), id_titulu, NULL, 1, NULL
 FROM Titul WHERE ISBN='978-80-7483-080-8';
 -- R.U.R.
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
 SELECT 'platná', TO_DATE('2021-05-03', 'YYYY-MM-DD'), TO_DATE('2021-05-04', 'YYYY-MM-DD'), id_titulu, NULL, 1, 1
 FROM Titul WHERE ISBN='978-80-7033-157-6';
 -- Válka s Mloky
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
 SELECT 'platná', TO_DATE('2021-07-03', 'YYYY-MM-DD'), TO_DATE('2021-09-04', 'YYYY-MM-DD'), id_titulu, NULL, 2, NULL
 FROM Titul WHERE ISBN='7886-364-53-366';
 -- Babička
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
 SELECT 'platná', TO_DATE('2021-01-01', 'YYYY-MM-DD'), TO_DATE('2021-09-01', 'YYYY-MM-DD'), id_titulu, NULL, 4, NULL
 FROM Titul WHERE ISBN='9598-56-657-0154-2';
 -- Spalovač mrtvol
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
 SELECT 'platná', TO_DATE('2021-02-01', 'YYYY-MM-DD'), TO_DATE('2021-10-01', 'YYYY-MM-DD'), id_titulu, NULL, 5, NULL
 FROM Titul WHERE ISBN='456-25-951-7853-6';
 -- Spalovač mrtvol
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
 SELECT 'platná', TO_DATE('2021-03-01', 'YYYY-MM-DD'), TO_DATE('2021-11-01', 'YYYY-MM-DD'), id_titulu, NULL, 3, NULL
 FROM Titul WHERE ISBN='448-55-456-2589-3';
 
@@ -815,8 +815,8 @@ SELECT * FROM Pracovnik;
 
 -- Trigger_Rezervace
 -- snaha o vytvoření Rezervace pro Titul, který nemá žádný Výtisk skladem, skončí chybou
-INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil) 
-SELECT 'platná', TO_DATE('2021-03-03', 'YYYY-MM-DD'), TO_DATE('2023-05-04', 'YYYY-MM-DD'), id_titulu, NULL, 4, NULL 
+INSERT INTO Rezervace (stav, rezervovano_od, rezervovano_do, id_titulu, id_vypujcky, id_ctenare, id_pracovnika_zrusil)
+SELECT 'platná', TO_DATE('2021-03-03', 'YYYY-MM-DD'), TO_DATE('2023-05-04', 'YYYY-MM-DD'), id_titulu, NULL, 4, NULL
 FROM Titul WHERE ISBN='369-66-823-1456-4';
 
 
@@ -859,7 +859,7 @@ GRANT ALL ON SEQ_ID_PRACOVNIKA TO &grantPermissionsToUsername;
 
 
 
--------------------------------------------------- INDEXY --------------------------------------------------					
+-------------------------------------------------- INDEXY --------------------------------------------------
 CREATE INDEX jmeno_titulu
 ON titul (nazev);
 
